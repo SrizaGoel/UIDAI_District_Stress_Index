@@ -5,45 +5,45 @@ def recommend_action(row):
     
     recommendations = []
     
-    # Base on persistent stress
+    # persistent stress
     if row["chronic_stress"]:
-        recommendations.append("🚨 **Immediate Intervention Required**: Deploy permanent additional staff and infrastructure")
-        recommendations.append("📋 **Action**: Establish dedicated Aadhaar center with extended hours")
+        recommendations.append(" **Immediate Intervention Required**: Deploy permanent additional staff and infrastructure")
+        recommendations.append(" **Action**: Establish dedicated Aadhaar center with extended hours")
     elif row["persistent_stress"]:
-        recommendations.append("⚠️ **Persistent Issue**: Increase staffing by 50% for next 3 months")
-        recommendations.append("📋 **Action**: Temporary staff augmentation and mobile unit deployment")
+        recommendations.append(" **Persistent Issue**: Increase staffing by 50% for next 3 months")
+        recommendations.append(" **Action**: Temporary staff augmentation and mobile unit deployment")
     
-    # Base on priority level
+    # priority level
     if row["priority_level"] == "CRITICAL":
-        recommendations.append("🔥 **Critical Priority**: Deploy 2+ mobile units immediately")
-        recommendations.append("⏰ **Action**: Extend working hours by 4 hours daily")
-        recommendations.append("📞 **Action**: Set up helpline for appointment scheduling")
+        recommendations.append(" **Critical Priority**: Deploy 2+ mobile units immediately")
+        recommendations.append(" **Action**: Extend working hours by 4 hours daily")
+        recommendations.append(" **Action**: Set up helpline for appointment scheduling")
     elif row["priority_level"] == "WATCH":
-        recommendations.append("👀 **Monitor Closely**: Weekly review required")
-        recommendations.append("📋 **Action**: Prepare contingency plan for staff reallocation")
+        recommendations.append(" **Monitor Closely**: Weekly review required")
+        recommendations.append(" **Action**: Prepare contingency plan for staff reallocation")
     
-    # Base on stress level
+    # stress level
     if row["stress_level"] == "HIGH":
-        recommendations.append("🔴 **High Stress**: Temporary staff reallocation needed")
-        recommendations.append("📋 **Action**: Reallocate 30% staff from nearby low-stress districts")
+        recommendations.append(" **High Stress**: Temporary staff reallocation needed")
+        recommendations.append(" **Action**: Reallocate 30% staff from nearby low-stress districts")
     elif row["stress_level"] == "MEDIUM":
-        recommendations.append("🟡 **Medium Stress**: Enhanced monitoring")
-        recommendations.append("📋 **Action**: Bi-weekly progress review")
+        recommendations.append(" **Medium Stress**: Enhanced monitoring")
+        recommendations.append(" **Action**: Bi-weekly progress review")
     
-    # Additional recommendations based on other factors
+    # Additional recommendations 
     if row.get("biometric_penetration", 0) < 0.3:
-        recommendations.append("📱 **Low Biometric Coverage**: Run awareness campaigns")
+        recommendations.append(" **Low Biometric Coverage**: Run awareness campaigns")
     
     if row.get("demographic_coverage", 0) < 0.4:
-        recommendations.append("👥 **Documentation Issues**: Simplify document submission process")
+        recommendations.append(" **Documentation Issues**: Simplify document submission process")
     
     if row["emergency_flag"]:
-        recommendations.append("🚑 **Emergency Response**: Activate district-level emergency protocol")
-        recommendations.append("📋 **Action**: Daily progress reporting to state headquarters")
+        recommendations.append(" **Emergency Response**: Activate district-level emergency protocol")
+        recommendations.append(" **Action**: Daily progress reporting to state headquarters")
     
     if not recommendations:
-        recommendations.append("✅ **Normal Operations**: Continue regular monitoring")
-        recommendations.append("📋 **Action**: Monthly review meetings")
+        recommendations.append(" **Normal Operations**: Continue regular monitoring")
+        recommendations.append(" **Action**: Monthly review meetings")
     
     return "<br>".join(recommendations)
 

@@ -31,7 +31,7 @@ except ImportError as e:
     st.error(f"Module import error: {e}")
     st.stop()
 
-# ------------------ PAGE CONFIG ------------------
+# PAGE CONFIG 
 st.set_page_config(
     page_title="Aadhaar Operational Intelligence",
     layout="wide",
@@ -39,7 +39,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ------------------ CUSTOM CSS ------------------
+
 st.markdown("""
     <style>
     /* Clean professional background */
@@ -224,27 +224,27 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ------------------ HEADER ------------------
-st.markdown('<h1 class="main-header">🆔 Aadhaar Operational Intelligence Dashboard</h1>', unsafe_allow_html=True)
+# header
+st.markdown('<h1 class="main-header"> Aadhaar Operational Intelligence Dashboard</h1>', unsafe_allow_html=True)
 st.markdown('<p class="sub-header">Advanced Analytics for Efficient Aadhaar Service Delivery Across India</p>', unsafe_allow_html=True)
 
-# ------------------ LOAD & PROCESS DATA ------------------
+
 @st.cache_data(ttl=600)
 def load_and_process_data():
     """Load and process data with caching"""
     try:
-        with st.spinner("🔄 Loading and processing Aadhaar data. This may take a moment..."):
+        with st.spinner("Loading and processing Aadhaar data. This may take a moment..."):
             print("\n" + "="*60)
             print("LOADING AND PROCESSING DATA")
             print("="*60)
             
-            # Load raw data
+            # raw data
             enrol, bio, demo = load_data()
             
             # Preprocess
             enrol, bio, demo = preprocess(enrol, bio, demo)
             
-            # Calculate metrics
+            
             df = calculate_dsi(enrol, bio, demo)
             
             # Analysis
@@ -253,11 +253,11 @@ def load_and_process_data():
             df = add_persistent_stress(df)
             df = calculate_performance_metrics(df)
             
-            # Generate recommendations
+            
             df["recommended_action"] = df.apply(recommend_action, axis=1)
             df["last_updated"] = datetime.now()
             
-            # Clean up NaN values
+            
             numeric_cols = df.select_dtypes(include=[np.number]).columns
             df[numeric_cols] = df[numeric_cols].fillna(0)
             
@@ -272,38 +272,38 @@ def load_and_process_data():
         st.error(f"Data loading error: {str(e)}")
         return pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 
-# Load data
+
 df, enrol, bio, demo = load_and_process_data()
 
-# Check if data is empty
+
 if df.empty:
     st.error("""
-    ❌ No data loaded. Please check:
+     No data loaded. Please check:
     1. CSV files are in the `data/` folder
     2. Files contain 'enrol', 'bio', or 'demo' in names
     3. Files have required columns: state, district, date
     """)
     st.stop()
 
-# ------------------ SIDEBAR ------------------
-st.sidebar.markdown("## 🔍 Navigation")
+# sidebar
+st.sidebar.markdown("##  Navigation")
 
 # Navigation
 page = st.sidebar.radio(
     "Select Dashboard View",
-    ["📊 Overview", "🚨 Priority Alerts", "🧑‍💼 Action Center", "📈 Analytics", "🗺️ State View", "⚙️ Data Info"]
+    [" Overview", "Priority Alerts", "Action Center", "Analytics", "State View", "Data Info"]
 )
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("## 🎯 Data Filters")
+st.sidebar.markdown("## Data Filters")
 
-# Get unique values for filters
+
 all_states = sorted(df["state"].unique().tolist())
 all_months = sorted(df["month"].unique().tolist())
 all_stress_levels = sorted(df["stress_level"].unique().tolist())
 all_priority_levels = sorted(df["priority_level"].unique().tolist())
 
-# State filter with "All" option
+# State filter 
 st.sidebar.markdown("### Select States")
 selected_states = st.sidebar.multiselect(
     "Choose states (select all or specific)",
@@ -347,71 +347,69 @@ selected_priority = st.sidebar.multiselect(
 st.sidebar.markdown("### Persistent Stress")
 show_persistent = st.sidebar.checkbox("Show only districts with persistent stress", False)
 
-# Reset filters button
+
 st.sidebar.markdown("---")
-if st.sidebar.button("🔄 Reset All Filters", use_container_width=True):
+if st.sidebar.button(" Reset All Filters", use_container_width=True):
     st.rerun()
 
-# ------------------ APPLY FILTERS ------------------
-# Start with full data
+
 filtered_df = df.copy()
 
-# Apply state filter
+
 if "All States" not in selected_states and selected_states:
     filtered_df = filtered_df[filtered_df["state"].isin(selected_states)]
 
-# Apply month filter
+
 if "All Months" not in selected_months and selected_months:
     filtered_df = filtered_df[filtered_df["month"].isin(selected_months)]
 
-# Apply stress level filter
+
 if "All Levels" not in selected_stress and selected_stress:
     filtered_df = filtered_df[filtered_df["stress_level"].isin(selected_stress)]
 
-# Apply priority filter
+
 if "All Priorities" not in selected_priority and selected_priority:
     filtered_df = filtered_df[filtered_df["priority_level"].isin(selected_priority)]
 
-# Apply persistent stress filter
+
 if show_persistent:
     filtered_df = filtered_df[filtered_df["persistent_stress"] == True]
 
 st.sidebar.markdown("---")
 
-# Display filter summary
-st.sidebar.markdown("## 📊 Current View")
+
+st.sidebar.markdown("Current View")
 st.sidebar.metric("Total Records", f"{len(filtered_df):,}")
 st.sidebar.metric("States", filtered_df["state"].nunique())
 st.sidebar.metric("Districts", filtered_df["district"].nunique())
 
-# Filter status
-if len(filtered_df) < len(df):
-    st.sidebar.success(f"✅ Filters applied: Showing {len(filtered_df):,} of {len(df):,} records")
-else:
-    st.sidebar.info("ℹ️ Showing all data (no filters applied)")
 
-# Use filtered data
+if len(filtered_df) < len(df):
+    st.sidebar.success(f" Filters applied: Showing {len(filtered_df):,} of {len(df):,} records")
+else:
+    st.sidebar.info("Showing all data (no filters applied)")
+
 current_df = filtered_df
 
-# ------------------ DASHBOARD PAGES ------------------
-if page == "📊 Overview":
+# Dashboard Pages 
+if page == "Overview":
     
-    # Header with filter info
+    
     if len(current_df) < len(df):
         st.markdown(f"""
         <div class="filter-info">
-        <strong>📊 Filtered View:</strong> Showing {len(current_df):,} of {len(df):,} records | 
+        <strong> Filtered View:</strong> Showing {len(current_df):,} of {len(df):,} records | 
         States: {current_df['state'].nunique()} | Districts: {current_df['district'].nunique()}
         </div>
         """, unsafe_allow_html=True)
     
-    st.header("📊 Executive Dashboard")
+    st.header(" Executive Dashboard")
     
     if not current_df.empty:
-        # SECTION 1: KEY METRICS
+        # Key Metrics
         st.markdown('<div class="section-header">Key Performance Indicators</div>', unsafe_allow_html=True)
         
-        # Row 1
+        # row 1
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
@@ -436,7 +434,7 @@ if page == "📊 Overview":
             st.metric("Critical Priority", f"{critical:,}",
                      help="District-month combinations marked as CRITICAL priority")
         
-        # Row 2
+        # row 2
         col5, col6, col7, col8 = st.columns(4)
         
         with col5:
@@ -459,7 +457,7 @@ if page == "📊 Overview":
             st.metric("Service Efficiency", f"{service_efficiency:.2f}",
                      help="Average service efficiency score")
         
-        # SECTION 2: VISUAL ANALYTICS
+        
         st.markdown('<div class="section-header">Visual Analytics</div>', unsafe_allow_html=True)
         
         col_chart1, col_chart2 = st.columns(2)
@@ -516,7 +514,7 @@ if page == "📊 Overview":
                 st.info("Insufficient data for trend analysis")
             st.markdown('</div>', unsafe_allow_html=True)
         
-        # SECTION 3: TOP DISTRICTS ANALYSIS
+        
         st.markdown('<div class="section-header">District Performance Analysis</div>', unsafe_allow_html=True)
         
         col_top1, col_top2 = st.columns(2)
@@ -568,7 +566,7 @@ if page == "📊 Overview":
                 st.info("No data available")
             st.markdown('</div>', unsafe_allow_html=True)
         
-        # SECTION 4: QUICK INSIGHTS
+        
         st.markdown('<div class="section-header">Quick Insights</div>', unsafe_allow_html=True)
         
         col_insight1, col_insight2, col_insight3 = st.columns(3)
@@ -578,7 +576,7 @@ if page == "📊 Overview":
                 max_stress_district = current_df.loc[current_df["district_stress_index"].idxmax()]
                 st.markdown(f"""
                 <div class="warning-box">
-                <strong>🔥 Highest Stress District:</strong><br>
+                <strong> Highest Stress District:</strong><br>
                 {max_stress_district['district']}, {max_stress_district['state']}<br>
                 <small>Stress Index: {max_stress_district['district_stress_index']:.3f}</small>
                 </div>
@@ -589,14 +587,14 @@ if page == "📊 Overview":
                 emergency_count = len(current_df[current_df["emergency_flag"] == True])
                 st.markdown(f"""
                 <div class="danger-box">
-                <strong>🚨 Emergency Districts:</strong><br>
+                <strong> Emergency Districts:</strong><br>
                 {emergency_count} districts need<br>immediate attention
                 </div>
                 """, unsafe_allow_html=True)
             else:
                 st.markdown(f"""
                 <div class="success-box">
-                <strong>✅ No Emergencies:</strong><br>
+                <strong> No Emergencies:</strong><br>
                 All districts are operating<br>within normal parameters
                 </div>
                 """, unsafe_allow_html=True)
@@ -607,35 +605,35 @@ if page == "📊 Overview":
                 if increasing > 0:
                     st.markdown(f"""
                     <div class="warning-box">
-                    <strong>📈 Increasing Stress:</strong><br>
+                    <strong> Increasing Stress:</strong><br>
                     {increasing} districts showing<br>worsening stress trends
                     </div>
                     """, unsafe_allow_html=True)
                 else:
                     st.markdown(f"""
                     <div class="success-box">
-                    <strong>📉 Stable Trends:</strong><br>
+                    <strong> Stable Trends:</strong><br>
                     No districts showing<br>increasing stress trends
                     </div>
                     """, unsafe_allow_html=True)
 
-elif page == "🚨 Priority Alerts":
+elif page == " Priority Alerts":
     
-    st.header("🚨 Priority Alerts Dashboard")
+    st.header(" Priority Alerts Dashboard")
     
     if not current_df.empty:
-        # SECTION 1: EMERGENCY ALERTS
+    
         st.markdown('<div class="section-header">Emergency Alerts</div>', unsafe_allow_html=True)
         
         emergency_df = current_df[current_df["emergency_flag"] == True]
         if not emergency_df.empty:
             st.markdown(f"""
             <div class="danger-box">
-            <strong>🚨 EMERGENCY ALERT:</strong> {len(emergency_df)} districts require IMMEDIATE attention!
+            <strong> EMERGENCY ALERT:</strong> {len(emergency_df)} districts require IMMEDIATE attention!
             </div>
             """, unsafe_allow_html=True)
             
-            with st.expander("📋 View Emergency Districts Details", expanded=True):
+            with st.expander("View Emergency Districts Details", expanded=True):
                 emergency_details = emergency_df[
                     ["state", "district", "month", "district_stress_index",
                      "stress_level", "high_stress_months", "consecutive_high"]
@@ -650,10 +648,9 @@ elif page == "🚨 Priority Alerts":
                     height=300
                 )
                 
-                # Export button
                 csv = emergency_details.to_csv(index=False)
                 st.download_button(
-                    label="📥 Download Emergency Districts List",
+                    label="Download Emergency Districts List",
                     data=csv,
                     file_name="emergency_districts.csv",
                     mime="text/csv"
@@ -661,17 +658,17 @@ elif page == "🚨 Priority Alerts":
         else:
             st.markdown(f"""
             <div class="success-box">
-            ✅ <strong>No Emergency Alerts</strong> - All districts are operating within normal parameters.
+             <strong>No Emergency Alerts</strong> - All districts are operating within normal parameters.
             </div>
             """, unsafe_allow_html=True)
         
-        # SECTION 2: CRITICAL PRIORITY DISTRICTS
+        # Critical Priority Districts
         st.markdown('<div class="section-header">Critical Priority Districts</div>', unsafe_allow_html=True)
         
         critical_df = current_df[current_df["priority_level"] == "CRITICAL"]
         
         if not critical_df.empty:
-            # Summary metrics
+            
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.metric("Critical Districts", len(critical_df))
@@ -680,8 +677,8 @@ elif page == "🚨 Priority Alerts":
             with col3:
                 st.metric("Avg High Months", f"{critical_df['high_stress_months'].mean():.1f}")
             
-            # Detailed view
-            with st.expander("📊 View All Critical Districts", expanded=True):
+            
+            with st.expander(" View All Critical Districts", expanded=True):
                 critical_details = critical_df[
                     ["state", "district", "month", "district_stress_index",
                      "stress_level", "high_stress_months", "consecutive_high",
@@ -702,11 +699,11 @@ elif page == "🚨 Priority Alerts":
         else:
             st.markdown(f"""
             <div class="success-box">
-            ✅ <strong>No Critical Priority Districts</strong> in the current view.
+             <strong>No Critical Priority Districts</strong> in the current view.
             </div>
             """, unsafe_allow_html=True)
         
-        # SECTION 3: PERSISTENT STRESS ANALYSIS
+        #  Persistent Stress Analysis
         st.markdown('<div class="section-header">Persistent Stress Analysis</div>', unsafe_allow_html=True)
         
         persistent_df = current_df[current_df["persistent_stress"] == True]
@@ -718,7 +715,7 @@ elif page == "🚨 Priority Alerts":
                 st.markdown('<div class="chart-container">', unsafe_allow_html=True)
                 st.markdown('<div class="sub-section-header">Persistent Stress Districts</div>', unsafe_allow_html=True)
                 
-                # Group by state and district to show unique districts
+
                 unique_persistent = persistent_df.groupby(["state", "district"]).agg({
                     "high_stress_months": "max",
                     "consecutive_high": "max"
@@ -750,16 +747,16 @@ elif page == "🚨 Priority Alerts":
         else:
             st.markdown(f"""
             <div class="info-box">
-            ℹ️ <strong>No districts with persistent stress</strong> (3+ consecutive high stress months)
+             <strong>No districts with persistent stress</strong> (3+ consecutive high stress months)
             </div>
             """, unsafe_allow_html=True)
 
-elif page == "🧑‍💼 Action Center":
+elif page == " Action Center":
     
-    st.header("🧑‍💼 Action Center & Recommendations")
+    st.header(" Action Center & Recommendations")
     
     if not current_df.empty:
-        # SECTION 1: DISTRICT-SPECIFIC ANALYSIS
+    
         st.markdown('<div class="section-header">District-Specific Analysis</div>', unsafe_allow_html=True)
         
         col_sel1, col_sel2 = st.columns(2)
@@ -780,14 +777,13 @@ elif page == "🧑‍💼 Action Center":
                 key="action_district"
             )
         
-        # Display District Analysis
+        
         district_data = state_df[state_df["district"] == selected_district]
         
         if not district_data.empty:
             # Get latest data for the district
             latest_data = district_data.sort_values("month").iloc[-1]
             
-            # SECTION 2: DISTRICT METRICS
             st.markdown('<div class="section-header">District Performance Metrics</div>', unsafe_allow_html=True)
             
             metrics_cols = st.columns(4)
@@ -796,11 +792,11 @@ elif page == "🧑‍💼 Action Center":
             metrics_cols[2].metric("Priority Level", latest_data['priority_level'])
             metrics_cols[3].metric("High Months", int(latest_data['high_stress_months']))
             
-            # Additional metrics if available
+        
             if "consecutive_high" in latest_data:
                 st.info(f"Consecutive high stress months: {int(latest_data['consecutive_high'])}")
             
-            # SECTION 3: RECOMMENDATIONS
+            #  Recommendations
             st.markdown('<div class="section-header">Recommended Actions</div>', unsafe_allow_html=True)
             
             st.markdown('<div class="chart-container">', unsafe_allow_html=True)
@@ -808,7 +804,7 @@ elif page == "🧑‍💼 Action Center":
             st.markdown(latest_data['recommended_action'], unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
             
-            # SECTION 4: HISTORICAL TREND
+            # Historical Trend
             st.markdown('<div class="section-header">Historical Performance Trend</div>', unsafe_allow_html=True)
             
             st.markdown('<div class="chart-container">', unsafe_allow_html=True)
@@ -826,7 +822,7 @@ elif page == "🧑‍💼 Action Center":
                 marker=dict(size=8)
             ))
             
-            # Add threshold lines
+        
             fig.add_hline(y=0.6, line_dash="dash", line_color="red", 
                          annotation_text="High Stress Threshold", 
                          annotation_position="bottom right")
@@ -845,12 +841,11 @@ elif page == "🧑‍💼 Action Center":
             st.plotly_chart(fig, use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
         
-        # SECTION 5: ALL DISTRICTS ACTION SUMMARY
         st.markdown('<div class="section-header">All Districts - Action Summary</div>', unsafe_allow_html=True)
         
         st.markdown('<div class="chart-container">', unsafe_allow_html=True)
         
-        # Create a simplified summary view
+    
         summary_df = current_df[
             ["state", "district", "month", "stress_level", 
              "priority_level", "district_stress_index", "recommended_action"]
@@ -872,12 +867,12 @@ elif page == "🧑‍💼 Action Center":
         )
         st.markdown('</div>', unsafe_allow_html=True)
 
-elif page == "📈 Analytics":
+elif page == "Analytics":
     
-    st.header("📈 Advanced Analytics")
+    st.header("Advanced Analytics")
     
     if not current_df.empty and len(current_df) > 1:
-        # SECTION 1: METRIC SELECTION
+        
         st.markdown('<div class="section-header">Metric Analysis</div>', unsafe_allow_html=True)
         
         metric_options = [
@@ -899,7 +894,7 @@ elif page == "📈 Analytics":
                 help="Choose a metric to analyze trends and distributions"
             )
             
-            # SECTION 2: TIME SERIES ANALYSIS
+        
             st.markdown('<div class="section-header">Time Series Analysis</div>', unsafe_allow_html=True)
             
             col_ts1, col_ts2 = st.columns(2)
@@ -919,7 +914,7 @@ elif page == "📈 Analytics":
                     line=dict(color='#3B82F6', width=3)
                 ))
                 
-                # Add confidence interval
+                
                 fig.add_trace(go.Scatter(
                     x=time_series["month"].tolist() + time_series["month"].tolist()[::-1],
                     y=(time_series["mean"] + time_series["std"]).tolist() + 
@@ -957,7 +952,7 @@ elif page == "📈 Analytics":
                 st.plotly_chart(fig_hist, use_container_width=True)
                 st.markdown('</div>', unsafe_allow_html=True)
             
-            # SECTION 3: STATE COMPARISON
+            
             st.markdown('<div class="section-header">State-wise Comparison</div>', unsafe_allow_html=True)
             
             col_comp1, col_comp2 = st.columns(2)
@@ -1004,7 +999,7 @@ elif page == "📈 Analytics":
                     st.plotly_chart(fig_box, use_container_width=True)
                 st.markdown('</div>', unsafe_allow_html=True)
             
-            # SECTION 4: CORRELATION ANALYSIS
+            # Correlation Analysis
             st.markdown('<div class="section-header">Correlation Analysis</div>', unsafe_allow_html=True)
             
             st.markdown('<div class="chart-container">', unsafe_allow_html=True)
@@ -1027,12 +1022,12 @@ elif page == "📈 Analytics":
                 st.info("Insufficient numeric columns for correlation analysis")
             st.markdown('</div>', unsafe_allow_html=True)
 
-elif page == "🗺️ State View":
+elif page == " State View":
     
-    st.header("🗺️ State-wise Analysis")
+    st.header("State-wise Analysis")
     
     if not current_df.empty:
-        # SECTION 1: STATE SELECTION
+    
         st.markdown('<div class="section-header">Select State for Detailed Analysis</div>', unsafe_allow_html=True)
         
         selected_state_detail = st.selectbox(
@@ -1044,10 +1039,10 @@ elif page == "🗺️ State View":
         state_detail_df = current_df[current_df["state"] == selected_state_detail]
         
         if not state_detail_df.empty:
-            # SECTION 2: STATE OVERVIEW
+        
             st.markdown(f'<div class="section-header">{selected_state_detail} - State Overview</div>', unsafe_allow_html=True)
             
-            # State Metrics
+            
             col_s1, col_s2, col_s3, col_s4 = st.columns(4)
             
             with col_s1:
@@ -1066,7 +1061,7 @@ elif page == "🗺️ State View":
                 critical_count = (state_detail_df["priority_level"] == "CRITICAL").sum()
                 st.metric("Critical Instances", critical_count)
             
-            # SECTION 3: TOP DISTRICTS IN STATE
+            # Top Districts In State
             st.markdown(f'<div class="section-header">Top Districts in {selected_state_detail}</div>', unsafe_allow_html=True)
             
             col_top1, col_top2 = st.columns(2)
@@ -1107,7 +1102,7 @@ elif page == "🗺️ State View":
                 st.plotly_chart(fig, use_container_width=True)
                 st.markdown('</div>', unsafe_allow_html=True)
             
-            # SECTION 4: TREND ANALYSIS
+            # Trend Analysis
             st.markdown(f'<div class="section-header">Trend Analysis for {selected_state_detail}</div>', unsafe_allow_html=True)
             
             st.markdown('<div class="chart-container">', unsafe_allow_html=True)
@@ -1135,7 +1130,7 @@ elif page == "🗺️ State View":
                 row=1, col=1
             )
             
-            # Service Demand and Enrollment (dual axis)
+            # Service Demand and Enrollment 
             fig_state.add_trace(
                 go.Bar(
                     x=state_monthly["month"],
@@ -1171,7 +1166,7 @@ elif page == "🗺️ State View":
             st.plotly_chart(fig_state, use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
         
-        # SECTION 5: ALL STATES SUMMARY
+        
         st.markdown('<div class="section-header">All States Summary</div>', unsafe_allow_html=True)
         
         st.markdown('<div class="chart-container">', unsafe_allow_html=True)
@@ -1193,11 +1188,11 @@ elif page == "🗺️ State View":
         )
         st.markdown('</div>', unsafe_allow_html=True)
 
-elif page == "⚙️ Data Info":
+elif page == "Data Info":
     
-    st.header("⚙️ Data Information & Configuration")
+    st.header("Data Information & Configuration")
     
-    # SECTION 1: DATA SOURCE INFO
+
     st.markdown('<div class="section-header">Data Source Information</div>', unsafe_allow_html=True)
     
     col_info1, col_info2, col_info3 = st.columns(3)
@@ -1220,7 +1215,7 @@ elif page == "⚙️ Data Info":
         persistent_pct = (current_df["persistent_stress"] == True).mean() * 100
         st.metric("Persistent %", f"{persistent_pct:.1f}%")
     
-    # SECTION 2: DATA QUALITY
+    
     st.markdown('<div class="section-header">Data Quality Metrics</div>', unsafe_allow_html=True)
     
     col_quality1, col_quality2, col_quality3, col_quality4 = st.columns(4)
@@ -1241,7 +1236,7 @@ elif page == "⚙️ Data Info":
         column_count = len(current_df.columns)
         st.metric("Columns", column_count)
     
-    # SECTION 3: DATA EXPORT
+    
     st.markdown('<div class="section-header">Data Export</div>', unsafe_allow_html=True)
     
     col_export1, col_export2, col_export3 = st.columns(3)
@@ -1249,7 +1244,7 @@ elif page == "⚙️ Data Info":
     with col_export1:
         csv_data = current_df.to_csv(index=False)
         st.download_button(
-            label="📥 Download Current View",
+            label=" Download Current View",
             data=csv_data,
             file_name="aadhaar_current_view.csv",
             mime="text/csv",
@@ -1260,7 +1255,7 @@ elif page == "⚙️ Data Info":
         if len(current_df[current_df["priority_level"] == "CRITICAL"]) > 0:
             critical_data = current_df[current_df["priority_level"] == "CRITICAL"].to_csv(index=False)
             st.download_button(
-                label="🚨 Download Critical Districts",
+                label="Download Critical Districts",
                 data=critical_data,
                 file_name="critical_districts.csv",
                 mime="text/csv",
@@ -1275,14 +1270,14 @@ elif page == "⚙️ Data Info":
         }).reset_index().to_csv(index=False)
         
         st.download_button(
-            label="📋 Download Summary",
+            label="Download Summary",
             data=summary_data,
             file_name="district_summary.csv",
             mime="text/csv",
             help="Download district-level summary statistics"
         )
     
-    # SECTION 4: SYSTEM INFO
+    
     st.markdown('<div class="section-header">System Information</div>', unsafe_allow_html=True)
     
     st.markdown('<div class="chart-container">', unsafe_allow_html=True)
@@ -1302,14 +1297,14 @@ elif page == "⚙️ Data Info":
     
     st.code(sys_info)
     
-    # Refresh button
-    if st.button("🔄 Refresh Dashboard & Clear Cache", use_container_width=True):
+    
+    if st.button("Refresh Dashboard & Clear Cache", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
     
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ------------------ FOOTER ------------------
+
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #4b5563; padding: 1.5rem; background: #f8fafc; border-radius: 8px;'>

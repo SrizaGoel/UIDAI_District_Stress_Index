@@ -9,7 +9,7 @@ def find_all_files(data_dir: str, keyword: str) -> List[str]:
     files = glob.glob(pattern, recursive=False)
     
     if not files:
-        # Try alternative keywords
+        
         alt_keywords = {
             'enrol': ['enrollment', 'enrolment', 'enrol'],
             'bio': ['biometric', 'bio'],
@@ -26,7 +26,7 @@ def find_all_files(data_dir: str, keyword: str) -> List[str]:
         raise FileNotFoundError(f"No CSV files found for keyword: {keyword} in {data_dir}")
     
     print(f"Found {len(files)} files for keyword '{keyword}': {files}")
-    return sorted(files)  # Sort for consistent ordering
+    return sorted(files)  # Sort 
 
 def load_multiple_files(file_paths: List[str]) -> pd.DataFrame:
     """Load and combine multiple CSV files"""
@@ -46,7 +46,7 @@ def load_multiple_files(file_paths: List[str]) -> pd.DataFrame:
             print(f"    Error loading {file_path}: {str(e)}")
             raise
     
-    # Combine all dataframes
+    
     combined_df = pd.concat(dataframes, ignore_index=True)
     print(f"Combined total: {len(combined_df)} rows")
     return combined_df
@@ -79,13 +79,13 @@ def normalize_state_names(df: pd.DataFrame) -> pd.DataFrame:
 
 def clean_column_names(df: pd.DataFrame) -> pd.DataFrame:
     """Clean and standardize column names"""
-    # Create a copy to avoid warnings
+    
     df = df.copy()
     
-    # Standardize column names
+    
     df.columns = df.columns.str.lower().str.strip().str.replace(' ', '_')
     
-    # Common column name mappings
+    
     column_mappings = {
         'state_name': 'state',
         'district_name': 'district',
@@ -106,7 +106,7 @@ def clean_column_names(df: pd.DataFrame) -> pd.DataFrame:
         'demo_age_17+': 'demo_age_17_'
     }
     
-    # Rename columns if they exist
+
     for old_name, new_name in column_mappings.items():
         if old_name in df.columns and new_name not in df.columns:
             df.rename(columns={old_name: new_name}, inplace=True)
@@ -118,7 +118,7 @@ def load_data() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     data_dir = os.path.join(base, "data")
     
-    # Debug: List files in data directory
+    # Debug
     if not os.path.exists(data_dir):
         raise FileNotFoundError(f"Data directory not found: {data_dir}")
     
@@ -129,19 +129,19 @@ def load_data() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         print(f"  - {f}")
     
     try:
-        # Load enrolment data from multiple files
+        # Load enrolment data 
         print("\n=== Loading Enrolment Data ===")
         enrol_files = find_all_files(data_dir, "enrol")
         enrol = load_multiple_files(enrol_files)
         enrol = clean_column_names(enrol)
         
-        # Load biometric data from multiple files
+        # Load biometric data 
         print("\n=== Loading Biometric Data ===")
         bio_files = find_all_files(data_dir, "bio")
         bio = load_multiple_files(bio_files)
         bio = clean_column_names(bio)
         
-        # Load demographic data from multiple files
+        # Load demographic data 
         print("\n=== Loading Demographic Data ===")
         demo_files = find_all_files(data_dir, "demo")
         demo = load_multiple_files(demo_files)
@@ -149,32 +149,32 @@ def load_data() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         
     except FileNotFoundError as e:
         print(f"\nError: {e}")
-        # List available CSV files
+        
         csv_files = [f for f in all_files if f.lower().endswith('.csv')]
         print(f"\nAvailable CSV files ({len(csv_files)}):")
         for csv_file in sorted(csv_files):
             print(f"  - {csv_file}")
         raise
     
-    # Convert date columns
+    
     for df in [enrol, bio, demo]:
         if 'date' in df.columns:
             print(f"Converting date column for dataframe with {len(df)} rows")
-            # Try multiple date formats
+            
             df['date'] = pd.to_datetime(df['date'], dayfirst=True, errors='coerce')
             
-            # Check for successful conversions
+            
             null_dates = df['date'].isnull().sum()
             if null_dates > 0:
                 print(f"  Warning: {null_dates} rows have invalid dates")
     
-    # Normalize state names
+    
     print("\n=== Normalizing State Names ===")
     enrol = normalize_state_names(enrol)
     bio = normalize_state_names(bio)
     demo = normalize_state_names(demo)
     
-    # Summary
+    
     print("\n=== Data Loading Summary ===")
     print(f"Enrolment data: {len(enrol):,} rows, columns: {list(enrol.columns)}")
     print(f"Biometric data: {len(bio):,} rows, columns: {list(bio.columns)}")

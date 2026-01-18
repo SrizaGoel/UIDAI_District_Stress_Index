@@ -15,7 +15,7 @@ def preprocess(enrol, bio, demo):
             enrol["age_18_greater"]
         ).astype(int)
         
-        # Handle division by zero safely
+        
         mask = enrol["total_enrolment"] > 0
         enrol["child_percentage"] = 0.0
         enrol["adult_percentage"] = 0.0
@@ -33,7 +33,7 @@ def preprocess(enrol, bio, demo):
         print("Warning: Missing age columns in enrolment data")
         enrol["total_enrolment"] = 0
     
-    # Biometric calculations
+    
     print("Processing biometric data...")
     if 'bio_age_5_17' in bio.columns and 'bio_age_17_' in bio.columns:
         bio["total_biometric"] = (
@@ -41,7 +41,7 @@ def preprocess(enrol, bio, demo):
             bio["bio_age_17_"]
         ).astype(int)
         
-        # Fix: Handle division by zero for biometric_coverage
+        
         total_biometric_sum = bio["total_biometric"].sum()
         if total_biometric_sum > 0:
             bio["biometric_coverage"] = bio["total_biometric"] / total_biometric_sum
@@ -52,7 +52,7 @@ def preprocess(enrol, bio, demo):
         bio["total_biometric"] = 0
         bio["biometric_coverage"] = 0.0
     
-    # Demographic calculations
+    
     print("Processing demographic data...")
     if 'demo_age_5_17' in demo.columns and 'demo_age_17_' in demo.columns:
         demo["total_demographic"] = (
@@ -77,7 +77,7 @@ def preprocess(enrol, bio, demo):
         if 'district' in df.columns:
             df["district"] = df["district"].str.strip().str.title()
     
-    # Calculate population density proxy
+    
     print("Calculating population density scores...")
     max_enrolment = enrol["total_enrolment"].max()
     if max_enrolment > 0:

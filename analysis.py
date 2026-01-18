@@ -4,7 +4,7 @@ import numpy as np
 def classify_stress(df):
     """Enhanced stress classification with multiple dimensions"""
     
-    # Primary stress classification
+    
     df["stress_level"] = "LOW"
     df.loc[df["district_stress_index"] > 0.6, "stress_level"] = "HIGH"
     df.loc[
@@ -16,7 +16,7 @@ def classify_stress(df):
     # Add severity score (0-100)
     df["severity_score"] = df["district_stress_index"] * 20
     
-    # Trend classification
+
     df["trend"] = "STABLE"
     df.loc[df["stress_change"] > 10, "trend"] = "INCREASING"
     df.loc[df["stress_change"] < -10, "trend"] = "DECREASING"

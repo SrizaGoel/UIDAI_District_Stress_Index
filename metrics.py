@@ -6,7 +6,7 @@ def calculate_dsi(enrol, bio, demo):
     
     print("Calculating District Stress Index...")
     
-    # Aggregate data efficiently
+    
     print("Aggregating enrolment data...")
     e = enrol.groupby(["state", "district", "month"], as_index=False)["total_enrolment"].sum()
     
@@ -16,16 +16,16 @@ def calculate_dsi(enrol, bio, demo):
     print("Aggregating demographic data...")
     d = demo.groupby(["state", "district", "month"], as_index=False)["total_demographic"].sum()
     
-    # Merge all data
+    
     print("Merging data...")
     df = e.merge(b, on=["state", "district", "month"], how="left")
     df = df.merge(d, on=["state", "district", "month"], how="left")
     
-    # Fill NaN values
+    
     fill_cols = ["total_biometric", "total_demographic"]
     df[fill_cols] = df[fill_cols].fillna(0).astype(int)
     
-    # Calculate primary stress index
+    
     print("Calculating stress index...")
     df["district_stress_index"] = np.where(
         df["total_enrolment"] > 0,
@@ -33,10 +33,10 @@ def calculate_dsi(enrol, bio, demo):
         0
     )
     
-    # Clip extreme values
+    
     df["district_stress_index"] = df["district_stress_index"].clip(upper=5)
     
-    # Calculate additional metrics
+    
     print("Calculating additional metrics...")
     df["biometric_penetration"] = np.where(
         df["total_enrolment"] > 0,
@@ -59,7 +59,7 @@ def calculate_dsi(enrol, bio, demo):
     df["stress_change"] = df.groupby(["state", "district"])["district_stress_index"].pct_change() * 100
     df["stress_change"] = df["stress_change"].fillna(0)
     
-    # Categorize by population size
+    
     print("Categorizing by population...")
     if len(df) > 0:
         try:
